@@ -46,19 +46,20 @@ public class Pusher extends Machine {
 
         return true;
     }
-    private boolean moveOre(OreSim.Ore ore)
+    private boolean moveOre(Ore ore)
     {
         Location next = ore.getNextMoveLocation();
         // Test if try to move into border
         Color c = getBg().getColor(next);;
-        OreSim.Rock rock = (OreSim.Rock)gameGrid.getOneActorAt(next, OreSim.Rock.class);
-        OreSim.Clay clay = (OreSim.Clay)gameGrid.getOneActorAt(next, OreSim.Clay.class);
-        if (c.equals(getBorderColor()) || rock != null || clay != null)
+        Rock rock = (Rock)gameGrid.getOneActorAt(next, Rock.class);
+        Clay clay = (Clay)gameGrid.getOneActorAt(next, Clay.class);
+        Machine machine= (Machine)gameGrid.getOneActorAt(next, Machine.class);
+        if (c.equals(getBorderColor()) || rock != null || clay != null || machine != null)
             return false;
 
         // Test if there is another ore
-        OreSim.Ore neighbourOre =
-                (OreSim.Ore)gameGrid.getOneActorAt(next, OreSim.Ore.class);
+        Ore neighbourOre =
+                (Ore)gameGrid.getOneActorAt(next, Ore.class);
         if (neighbourOre != null)
             return false;
 
@@ -67,8 +68,8 @@ public class Pusher extends Machine {
         List<Actor> actors = gameGrid.getActorsAt(currentLocation);
         if (actors != null) {
             for (Actor actor : actors) {
-                if (actor instanceof OreSim.Target) {
-                    OreSim.Target currentTarget = (OreSim.Target) actor;
+                if (actor instanceof Target) {
+                    Target currentTarget = (Target) actor;
                     currentTarget.show();
                     ore.show(0);
                 }
@@ -79,7 +80,7 @@ public class Pusher extends Machine {
         ore.setLocation(next);
 
         // Check if we are at a target
-        OreSim.Target nextTarget = (OreSim.Target) gameGrid.getOneActorAt(next, OreSim.Target.class);
+        Target nextTarget = (Target) gameGrid.getOneActorAt(next, Target.class);
         if (nextTarget != null) {
             ore.show(1);
             nextTarget.hide();

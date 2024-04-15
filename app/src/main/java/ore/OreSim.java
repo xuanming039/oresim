@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 import java.util.Properties;
@@ -39,96 +40,6 @@ public class OreSim extends GameGrid implements GGKeyListener
       return ElementType.EMPTY;
     }
   }
-
-  class Target extends Actor
-  {
-    public Target()
-    {
-      super("sprites/target.gif");
-    }
-  }
-
-  public class Ore extends Actor
-  {
-    public Ore()
-    {
-      super("sprites/ore.png",2);
-    }
-  }
-
-//  private class Pusher extends Actor
-//  {
-//    private List<String> controls = null;
-//    private int autoMovementIndex = 0;
-//    public Pusher()
-//    {
-//      super(true, "sprites/pusher.png");  // Rotatable
-//    }
-//    public void setupPusher(boolean isAutoMode, List<String> controls) {
-//      this.controls = controls;
-//    }
-//
-//    /**
-//     * Method to move pusher automatically based on the instructions input from properties file
-//     */
-//    public void autoMoveNext() {
-//      if (controls != null && autoMovementIndex < controls.size()) {
-//        String[] currentMove = controls.get(autoMovementIndex).split("-");
-//        String machine = currentMove[0];
-//        String move = currentMove[1];
-//        autoMovementIndex++;
-//        if (machine.equals("P")) {
-//          if (isFinished)
-//            return;
-//
-//          Location next = null;
-//          switch (move)
-//          {
-//            case "L":
-//              next = getLocation().getNeighbourLocation(Location.WEST);
-//              setDirection(Location.WEST);
-//              break;
-//            case "U":
-//              next = getLocation().getNeighbourLocation(Location.NORTH);
-//              setDirection(Location.NORTH);
-//              break;
-//            case "R":
-//              next = getLocation().getNeighbourLocation(Location.EAST);
-//              setDirection(Location.EAST);
-//              break;
-//            case "D":
-//              next = getLocation().getNeighbourLocation(Location.SOUTH);
-//              setDirection(Location.SOUTH);
-//              break;
-//          }
-//
-//          Target curTarget = (Target) getOneActorAt(getLocation(), Target.class);
-//          if (curTarget != null){
-//            curTarget.show();
-//          }
-//          if (next != null && canMove(next))
-//          {
-//            setLocation(next);
-//          }
-//          refresh();
-//        }
-//      }
-//    }
-//  }
-
-
-
-
-
-  public class Rock extends Actor
-  {
-    public Rock() {super("sprites/rock.png");}
-  }
-
-  public class Clay extends Actor
-  {
-    public Clay() {super("sprites/clay.png");  }
-    }
   // ------------- End of inner classes ------
   //
   private MapGrid grid;
@@ -230,8 +141,7 @@ public class OreSim extends GameGrid implements GGKeyListener
     }
 
     doPause();
-    System.out.println(pusher.getMoveStepCount());
-    System.out.println(pusher.getRemovedCount());
+
 
     if (oresDone == grid.getNbOres()) {
       setTitle("Mission Complete. Well done!");
@@ -239,7 +149,7 @@ public class OreSim extends GameGrid implements GGKeyListener
       setTitle("Mission Failed. You ran out of time");
     }
 
-    updateStatistics();
+    updateStatistics(pusher, excavator,bulldozer);
     isFinished = true;
     return logResult.toString();
   }
@@ -278,16 +188,20 @@ public class OreSim extends GameGrid implements GGKeyListener
    * Students need to modify this method so it can write an actual statistics into the statistics file. It currently
    *  only writes the sample data.
    */
-  private void updateStatistics() {
+  private void updateStatistics(Pusher pusher, Excavator excavator, Bulldozer bulldozer) {
     File statisticsFile = new File("statistics.txt");
     FileWriter fileWriter = null;
     try {
       fileWriter = new FileWriter(statisticsFile);
-      fileWriter.write("Pusher-1 Moves: 10\n");
-      fileWriter.write("Excavator-1 Moves: 5\n");
-      fileWriter.write("Excavator-1 Rock removed: 3\n");
-      fileWriter.write("Bulldozer-1 Moves: 2\n");
-      fileWriter.write("Bulldozer-1 Clay removed: 1\n");
+      fileWriter.write("Pusher-1 Moves: " + pusher.getMoveStepCount() + "\n");
+      if(excavator != null) {
+        fileWriter.write("Excavator-1 Moves: " + excavator.getMoveStepCount() + "\n");
+        fileWriter.write("Excavator-1 Rock removed: " + bulldozer.getRemovedCount() + "\n");
+      }
+      if(bulldozer != null) {
+        fileWriter.write("Bulldozer-1 Moves: " + bulldozer.getMoveStepCount() + "\n");
+        fileWriter.write("Bulldozer-1 Clay removed: " + bulldozer.getRemovedCount() + "\n");
+      }
     } catch (IOException e) {
       System.out.println("Cannot write to file - e: " + e.getLocalizedMessage());
     } finally {
